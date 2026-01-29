@@ -1,0 +1,62 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# --- Pfad zur CSV-Datei ---
+file_path = "Messung-5.CSV"
+
+with open(file_path) as f:
+    for i, line in enumerate(f):
+        if line.strip().startswith("TIME"):
+            data_start = i
+            break
+
+df = pd.read_csv(file_path, skiprows=data_start)
+
+print(df.head())
+
+y1 = df["CH2"].values
+y2 = df["CH3"].values
+t = df["TIME"].values
+
+y3 = y1-2*y2
+
+print()
+print(y3.size)
+print()
+
+werte = 0
+null = 0
+durchbruch1 = 0
+durchbruch2 = 0
+
+for i in range(1, y3.size):
+    if y3[i-1] != y3[i]: #1
+        werte = werte + 1
+        if y3[i] == 0.0: #2
+            null = null + 1
+            print(null, " y3: ", y3[i])
+            print(null, " t: ", t[i])
+        elif y3[i-1] > 0.0 and y3[i] < 0.0: #3
+            durchbruch1 = durchbruch1 + 1
+            print(durchbruch1, " y3: ", y3[i])
+            print(durchbruch1, " t: ", t[i])
+        elif y3[i-1] < 0.0 and y3[i] > 0.0: #4
+            durchbruch2 = durchbruch2 + 1
+            print(durchbruch2, " y3: ", y3[i-1], " ", y3[i])
+            print(durchbruch2, " t: ", t[i])
+
+
+print()
+print(werte)
+print(null)
+print(durchbruch1)
+print(durchbruch2)
+print()
+print()
+
+durchbruch = null+durchbruch1+durchbruch2
+deltaT = t[y3.size-1]-t[0]
+
+f = durchbruch/(2*deltaT)
+print(f)
